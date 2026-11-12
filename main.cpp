@@ -2,6 +2,7 @@
 #include "tgaimage.h"
 #include "wireframe.h"
 #include "transform.h"
+#include "perspective.h"
 
 
 constexpr TGAColor white   = {255, 255, 255, 255}; // attention, BGRA order
@@ -25,26 +26,47 @@ int main(int argc, char** argv) {
 
     framebuffer.write_tga_file("framebuffer.tga");  */
     constexpr int width  = 800;
-    constexpr int height = 800;
+    constexpr int height = 600;
     TGAImage image(width,height , TGAImage::RGB);
     load_obj();
-    vertices = rotate_y(vertices, 30.0f);
-   for(int i=0; i<faces.size(); i++){
-        Vertex v0 = vertices[faces[i].a];
-        Vertex v1 = vertices[faces[i].b];
-        Vertex v2 = vertices[faces[i].c];
-        int x0 = (v0.x + 1.) * (width-1)/2.;
-        int y0 = (v0.y + 1.) * (height-1)/2.;
-        int x1 = (v1.x + 1.) * (width-1)/2.;
-        int y1 = (v1.y + 1.) * (height-1)/2.;
-        int x2 = (v2.x + 1.) * (width-1)/2.;
-        int y2 = (v2.y + 1.) * (height-1)/2.;
-        line(x0, y0, x1, y1, image, blue);
-        line(x1, y1, x2, y2, image, blue);
-        line(x2, y2, x0, y0, image, blue);
+    if (vertices.empty() || faces.empty()) {
+        return 1;
     }
 
-    image.write_tga_file("wireframe.tga"); 
+    PerspectiveCamera camera;
+    camera.width = width;
+    camera.height = height;
+    camera.vertical_fov_degrees = 60.0f;
+    camera.near_plane = 0.1f;
+
+    // Identity view: the camera is at the world origin, looking along -Z.
+    // Rotate local vertices, then move the model in front of this camera.
+    const auto model_vertices = rotate_y(vertices, 30.0f);
+    const auto camera_vertices = translate(model_vertices, 0.0f, 0.0f, -3.0f);
+    std::vector<ScreenPoint> screen_vertices;
+    screen_vertices.reserve(camera_vertices.size());
+    for (const auto& vertex : camera_vertices) {
+        // Even invalid points retain their original index.
+        screen_vertices.push_back(project_perspective(vertex, camera));
+    }
+
+    // This introductory scene is inside the viewport and beyond the near plane.
+    // Crossing the near plane needs segment clipping; currently such edges skip.
+    for (const auto& face : faces) {
+        const int indices[3] = {face.a, face.b, face.c};
+        for (int k = 0; k < 3; ++k) {
+            const auto& a = screen_vertices[indices[k]];
+            const auto& b = screen_vertices[indices[(k + 1) % 3]];
+            if (!a.valid || !b.valid) {
+                continue;
+            }
+            line(static_cast<int>(std::lround(a.x)), static_cast<int>(std::lround(a.y)),
+                 static_cast<int>(std::lround(b.x)), static_cast<int>(std::lround(b.y)),
+                 image, blue);
+        }
+    }
+
+    image.write_tga_file("perspective.tga");
     return 0;
 }
 

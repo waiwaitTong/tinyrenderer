@@ -22,11 +22,18 @@ endif()
 
 find_package(OpenMP COMPONENTS CXX)
 
-set(SOURCES main.cpp tgaimage.cpp wireframe.cpp transform.cpp)
+# Preserve the requested Chinese filenames while keeping compiler paths ASCII.
+# This also explicitly compiles the requested .c file as C++.
+configure_file("透视投影.c" "${CMAKE_CURRENT_BINARY_DIR}/perspective.cpp" COPYONLY)
+configure_file("透视投影.h" "${CMAKE_CURRENT_BINARY_DIR}/perspective.h" COPYONLY)
+set(SOURCES main.cpp tgaimage.cpp wireframe.cpp transform.cpp
+    "${CMAKE_CURRENT_BINARY_DIR}/perspective.cpp")
 
 add_executable(${PROJECT_NAME} ${SOURCES})
 
 target_include_directories(${PROJECT_NAME} PRIVATE
+    "${CMAKE_CURRENT_SOURCE_DIR}"
+    "${CMAKE_CURRENT_BINARY_DIR}"
     "${CMAKE_CURRENT_SOURCE_DIR}/external/glm"
 )
 target_link_libraries(${PROJECT_NAME} PRIVATE $<$<BOOL:${OpenMP_CXX_FOUND}>:OpenMP::OpenMP_CXX>)
