@@ -3,35 +3,35 @@ std::vector<Vertex> vertices;
 std::vector<Face> faces;
 void load_obj() {
 
-std::ifstream file("./obj/diablo3_pose/diablo3_pose.obj");
-std::string line;
-if (!file) {
-    std::cerr << "Cannot open model file\n";
-    return;
-}
-while(std::getline(file,line)){
+    std::ifstream file("./obj/diablo3_pose/diablo3_pose.obj");
+    std::string line;
+    if (!file) {
+        std::cerr << "Cannot open model file\n";
+        return;
+    }
+    while(std::getline(file,line)){
 
-std::istringstream isstream(line);
-std::string type;
-isstream >> type;
-if(type == "v"){
-    Vertex v;
-    isstream >> v.x >> v.y >> v.z;
-    vertices.push_back(v);
-}
-if(type == "f"){
-    std::string a, b, c;
-    if(isstream>>a>>b>>c){
-        Face f;
-        f.a = std::stoi(a)-1;
-        f.b = std::stoi(b)-1;
-        f.c = std::stoi(c)-1;
-        faces.push_back(f);
+    std::istringstream isstream(line);
+    std::string type;
+    isstream >> type;
+    if(type == "v"){
+        Vertex v;
+        isstream >> v.x >> v.y >> v.z;
+        vertices.push_back(v);
+    }
+    if(type == "f"){
+        std::string a, b, c;
+        if(isstream>>a>>b>>c){
+            Face f;
+            f.a = std::stoi(a)-1;
+            f.b = std::stoi(b)-1;
+            f.c = std::stoi(c)-1;
+            faces.push_back(f);
+        }
+
     }
 
-}
-
-}
+    }
 // std::cout << "Faces: " << faces.size() << '\n';
 }
 
@@ -58,3 +58,4 @@ void line(int x0, int y0, int x1, int y1, TGAImage &image, const TGAColor &color
          y+= (y1-y0)/(float)delta_x;
     }
 }
+

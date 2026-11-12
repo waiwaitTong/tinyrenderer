@@ -1,6 +1,8 @@
 #include <cmath>
 #include "tgaimage.h"
 #include "wireframe.h"
+#include "transform.h"
+
 
 constexpr TGAColor white   = {255, 255, 255, 255}; // attention, BGRA order
 constexpr TGAColor green   = {  0, 255,   0, 255};
@@ -26,12 +28,7 @@ int main(int argc, char** argv) {
     constexpr int height = 800;
     TGAImage image(width,height , TGAImage::RGB);
     load_obj();
-  /*   for(int i=0; i<vertices.size(); i++){
-        int x = (vertices[i].x + 1.) * (width-1)/2.;
-        int y = (vertices[i].y + 1.) * (height-1)/2.;
-        image.set(x, y, blue);
-        
-    } */
+    vertices = rotate_y(vertices, 30.0f);
    for(int i=0; i<faces.size(); i++){
         Vertex v0 = vertices[faces[i].a];
         Vertex v1 = vertices[faces[i].b];
@@ -46,6 +43,7 @@ int main(int argc, char** argv) {
         line(x1, y1, x2, y2, image, blue);
         line(x2, y2, x0, y0, image, blue);
     }
+
     image.write_tga_file("wireframe.tga"); 
     return 0;
 }

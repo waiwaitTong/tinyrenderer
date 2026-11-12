@@ -1,3 +1,8 @@
 {
-    "C_Cpp.intelliSenseEngine": "default"
+    "C_Cpp.intelliSenseEngine": "default",
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "cmake.buildBeforeRun": true,
+    "cmake.debugConfig": {
+        "cwd": "${workspaceFolder}"
+    }
 }

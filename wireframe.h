@@ -1,3 +1,4 @@
+#pragma once
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -5,6 +6,7 @@
 #include <iostream>
 #include "tgaimage.h"
 #include <cmath>
+
 
 struct Vertex {
     float x, y, z;
